@@ -1,0 +1,38 @@
+pipeline{
+     agent { label 'dev' }   
+    stages{
+        stage ("Git_Clone"){
+        steps{
+            git url: 'https://github.com/Devendra-Gupta1/django-notes-app.git' , branch: 'main'
+        }
+            
+        }
+        
+        stage ("build the images"){
+            
+        steps{
+            sh 'docker build . -t django-notes-app1:latest'
+    
+        }
+        
+        }
+        
+        stage ("login_dockerhub"){
+        steps{
+            echo "Login into dockerhub"
+            withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'dockerHubUSERNAME', passwordVariable: 'dockerHubPASSWORD')]) {
+                
+                sh "docker tag django-notes-app1 ${env.dockerHubUser}/django-notes-app1:latest"
+                
+                sh "docker login -u ${env.dockerHubUSERNAME} -p ${env.dockerHubPASSWORD}"
+                
+                sh "docker push ${env.dockerHubUser}/django-notes-app1:latest"
+            }
+        }
+        
+        }
+        
+       
+        }
+    }
+    
